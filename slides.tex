@@ -1,0 +1,126 @@
+\usepackage{minted}
+
+\title{5-minute intro to property-based testing in Python with \href{https://github.com/DRMacIver/hypothesis}{\texttt{hypothesis}}}
+\author{Franklin Chen \\ \url{http://FranklinChen.com/} \\ \url{http://ConscientiousProgrammer.com/}}
+\date{\href{http://www.meetup.com/pghpython/events/120442102}{Pittsburgh Python Meetup} \\
+June 26, 2013
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% TODO
+%\section*{Outline}
+%\begin{frame}
+%  \frametitle{Outline}
+%  \tableofcontents[pausesections]
+%\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Property-based testing vs. example-based testing}
+  
+  Example-based testing: assert that a property is true for \emph{some} values.
+  \begin{itemize}  
+  \item Are list appends associative?
+  \item Write some \emph{examples}
+  \end{itemize}
+
+  \begin{minted}{python}
+def test_list_append_associative_example1():
+    x, y, z = [2], [3, 4, 5], [6, 7]
+    assert (x + y) + z == x + (y + z)
+
+def test_list_append_associative_example2():
+    x, y, z = [2, 3], [], [6, 7]
+    assert (x + y) + z == x + (y + z)
+
+# ...
+  \end{minted}    
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Better: reduce boilerplate with parameters}
+
+  \href{http://pytest.org/}{pytest} allows parameterization of arguments in tests.
+  \begin{itemize}
+  \item Rewrite multiple examples as a \emph{single example}
+  \end{itemize}
+
+  \begin{minted}{python}
+import pytest
+
+@pytest.mark.parametrize (("x", "y", "z"), [
+    ([2], [3, 4, 5], [6, 7]),
+    ([2, 3], [], [6, 7])
+])
+def test_list_append_associative_parametrized(x, y, z):
+    assert (x + y) + z == x + (y + z)
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Introduction to property-based hypothesis testing}
+
+  \begin{minted}{python}
+from hypothesis.testdecorators import given
+
+@given ([int], [int], [int])
+def test_list_append_associative(x, y, z):
+    assert (x + y) + z == x + (y + z)
+  \end{minted}
+
+  \begin{itemize}
+  \item Passes!
+  \item \texttt{hypothesis} \emph{generates} a ``large'' number of examples
+  \item Generation
+    \begin{itemize}
+    \item Based on the \emph{type} of the argument
+    \item Not exhaustive: failure to \emph{falsify} does not mean true!
+    \item \href{https://github.com/DRMacIver/hypothesis/blob/master/hypothesis/searchstrategy.py}{Default generators provided}
+    \item You can write your own generators
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{A sample falsified hypothesis}
+
+  \begin{minted}{python}
+@given (int, int)
+def test_multiply_then_divide_is_same(x, y):
+    assert (x * y) / y == x
+  \end{minted}
+
+  Result:
+  \begin{minted}{console}
+... falsifying_example = ((0, 0), {})
+  \end{minted}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Some links}
+
+  \begin{itemize}
+  \item \texttt{hypothesis} \href{https://pypi.python.org/pypi/hypothesis}{documentation}
+  \item \href{https://pypi.python.org/pypi/pytest-quickcheck/}{pytest-quickcheck}
+  \item \href{http://franklinchen.com/blog/2013/04/11/my-pittsburgh-scala-meetup-talk-on-property-based-testing-using-scalacheck/}{My Pittsburgh Scala meetup talk on property-based testing using \texttt{ScalaCheck}}
+  \item \href{http://natpryce.com/articles/000801.html}{Nat Pryce's blog post on June 23, 2013}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conclusion}
+
+  \begin{itemize}  
+  \item Property-based testing is a useful addition to your toolbox
+  \item Try it out in Python!
+  \item All materials for this talk available at \url{https://github.com/franklinchen/lightning-talk-on-hypothesis}
+  \item Will write more about property-based testing on new blog \url{http://ConscientiousProgrammer.com/}
+  \end{itemize}
+
+\end{frame}
+
+\end{document}
