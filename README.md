@@ -4,6 +4,8 @@
 
 PDF of slides provided.
 
+Also for convenience, the slides are [on Slideshare](http://www.slideshare.net/FranklinChen/handout-23548866).
+
 ### Run
 
 To run the tests, make sure to have a recent version of [pytest](http://pytest.org/) installed.
